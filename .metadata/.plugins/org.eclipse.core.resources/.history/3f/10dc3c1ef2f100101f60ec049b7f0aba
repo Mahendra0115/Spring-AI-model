@@ -1,0 +1,36 @@
+package com.example.chatbot.service;
+
+import org.springframework.ai.ollama.OllamaChatModel;
+import org.springframework.stereotype.Service;
+
+
+@Service
+public class ChatService {
+    private OllamaChatModel chatModel;
+    
+    public ChatService(OllamaChatModel chatModel) {
+    	this.chatModel = chatModel;
+    }
+    
+//    public String ask(String message) {
+//    	
+//    	return chatModel.call(message);
+//    }
+    
+    
+    // Streaming response using callback
+    public void askStreaming(String message, StreamCallback callback) {
+        // call ke andar loop nahi hai, ye sirf conceptually line-by-line bhejega
+        String response = chatModel.call(message);
+        // Agar response ko split karna ho line by line ke liye
+        for (String line : response.split("\\n")) {
+            callback.onMessage(line); 
+        }
+    }
+
+    // Callback interface
+    public interface StreamCallback {
+        void onMessage(String message);
+    }
+    
+}

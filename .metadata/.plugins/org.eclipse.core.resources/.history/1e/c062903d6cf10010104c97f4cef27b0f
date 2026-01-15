@@ -1,0 +1,5 @@
+package com.mahendra.aichatbot.chat.dto;
+
+public class ChatRequest {
+
+}

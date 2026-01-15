@@ -1,0 +1,5 @@
+package com.mahendra.aichatbot.controller;
+
+public class ChatController {
+
+}

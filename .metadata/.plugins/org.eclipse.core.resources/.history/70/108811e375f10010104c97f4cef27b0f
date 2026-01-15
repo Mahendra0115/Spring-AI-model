@@ -1,0 +1,34 @@
+package com.mahendra.aichatbot.service;
+
+
+
+import org.springframework.ai.chat.client.ChatClient;
+//import org.springframework.ai.chat.client.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import com.mahendra.aichatbot.chat.dto.ChatRequest;
+import com.mahendra.aichatbot.chat.dto.ChatResponse;
+
+@Service
+public class ChatService {
+
+    private final ChatClient chatClient;
+
+    public ChatService(ChatClient chatClient) {
+        this.chatClient = chatClient;
+    }
+
+    public ChatResponse generateResponse(ChatRequest request) {
+    	
+    	
+        String aiReply = chatClient.prompt()
+                .user(request.getMessage())
+                .call()
+                .content();
+
+        ChatResponse response = new ChatResponse();
+        response.setReply(aiReply);
+
+        return response;
+    }
+}

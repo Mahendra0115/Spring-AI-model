@@ -1,0 +1,20 @@
+package com.example.chatbot.service;
+
+import org.springframework.ai.ollama.OllamaChatModel;
+import org.springframework.stereotype.Service;
+
+
+@Service
+public class ChatService {
+    private OllamaChatModel chatModel;
+    
+    public ChatService(OllamaChatModel chatModel) {
+    	this.chatModel = chatModel;
+    }
+    
+    public String ask(String message) {
+    	
+    	return chatModel.call(message);
+    }
+    
+}

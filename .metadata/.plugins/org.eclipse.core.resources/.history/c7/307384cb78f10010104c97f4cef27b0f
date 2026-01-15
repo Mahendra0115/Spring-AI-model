@@ -1,0 +1,39 @@
+package com.mahendra.aichatbot.controller;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.mahendra.aichatbot.chat.dto.ChatRequest;
+import com.mahendra.aichatbot.chat.dto.ChatResponse;
+import com.mahendra.aichatbot.service.ChatService;
+
+import org.springframework.web.bind.annotation.RequestBody;
+
+
+@RestController
+public class ChatController {
+
+    private final ChatService chatService;
+
+    public ChatController(ChatService chatService) {
+        this.chatService = chatService;
+    }
+
+    
+    
+    @PostMapping("/chat")
+    public ResponseEntity<ChatResponse> getChatResponse(
+            @org.springframework.web.bind.annotation.RequestBody ChatRequest request) {
+
+        if (request == null || request.getMessage() == null || request.getMessage().trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        
+        ChatResponse response = chatService.generateResponse(request);
+        return ResponseEntity.ok(response);
+        
+        
+    }
+}

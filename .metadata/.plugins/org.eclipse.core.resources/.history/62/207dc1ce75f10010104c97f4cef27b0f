@@ -1,0 +1,51 @@
+package com.mahendra.aichatbot.service;
+
+
+
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.stereotype.Service;
+
+import com.mahendra.aichatbot.chat.dto.ChatRequest;
+import com.mahendra.aichatbot.chat.dto.ChatResponse;
+@Service
+public class ChatService {
+
+    private final ChatClient chatClient;
+
+    public ChatService(ChatClient chatClient) {
+        this.chatClient = chatClient;
+    }
+
+    public ChatResponse generateResponse(ChatRequest request) {
+        
+        // 1. Sabse pehle request null check
+        if (request == null) {
+            throw new IllegalArgumentException("ChatRequest cannot be null");
+        }
+
+        // 2. Message field check (null ya empty/whitespace)
+        String userMessage = request.getMessage();
+        if (userMessage == null || userMessage.trim().isEmpty()) {
+            throw new IllegalArgumentException("Message cannot be null or empty");
+        }
+
+        // 3. AI call karo (ab safe hai, null nahi jayega)
+        String aiReply;
+        try {
+            aiReply = chatClient.prompt()
+                    .user(userMessage.trim())  // extra spaces remove kar diya
+                    .call()
+                    .content();
+        } catch (Exception e) {
+            // AI call fail hone pe (Ollama down, model issue etc)
+            throw new RuntimeException("Failed to get response from AI model: " + e.getMessage(), e);
+        }
+
+        // 4. Response banao
+        ChatResponse response = new ChatResponse();
+        response.setReply(aiReply != null ? aiReply : "Sorry, no response received from AI.");
+
+        return response;
+    }
+
+}

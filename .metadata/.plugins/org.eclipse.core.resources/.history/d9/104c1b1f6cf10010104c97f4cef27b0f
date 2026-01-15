@@ -1,0 +1,5 @@
+package com.mahendra.aichatbot.config;
+
+public class AiConfig {
+
+}
