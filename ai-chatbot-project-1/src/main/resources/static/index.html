@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Streaming</title>
+</head>
+<body>
+
+<textarea id="question" rows="3" cols="60"
+          placeholder="Ask something..."></textarea><br><br>
+
+<button onclick="startChat()">Ask</button>
+
+<hr>
+
+<div id="output"
+     style="white-space: pre-wrap; font-size:16px;"></div>
+
+<script>
+function startChat() {
+
+    // clear old output
+    document.getElementById("output").innerText = "";
+
+    const question = document.getElementById("question").value;
+
+    // SSE connection
+    const eventSource = new EventSource(
+        "/chat/stream?message=" + encodeURIComponent(question)
+    );
+
+    eventSource.onmessage = function (event) {
+        //  ONLY clean token (no "data:")
+        document.getElementById("output").innerText += event.data + " ";
+    };
+
+    eventSource.onerror = function () {
+        eventSource.close();
+    };
+}
+</script>
+
+</body>
+</html>
