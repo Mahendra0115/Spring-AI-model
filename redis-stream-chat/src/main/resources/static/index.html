@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h3>Java AI Chat (Streaming)</h3>
+
+<input id="msg" placeholder="Ask Java question" />
+<button onclick="send()">Send</button>
+<button onclick="stop()">Stop</button>
+
+<pre id="chat"></pre>
+
+<script>
+const sessionId = "user1";
+let es = null;
+
+function send() {
+    const q = document.getElementById('msg').value;
+    const chat = document.getElementById('chat');
+
+    chat.textContent += "\n\nYou: " + q + "\nAI: ";
+
+    if (es) {
+        es.close();
+    }
+
+    es = new EventSource(
+        `/chat/stream?sessionId=${sessionId}&message=${encodeURIComponent(q)}`
+    );
+
+    es.onmessage = e => {
+        let text = e.data;
+
+        // 👉 spacing fix
+        if (
+            chat.textContent.length > 0 &&
+            !chat.textContent.endsWith(" ") &&
+            !text.startsWith(" ")
+        ) {
+            chat.textContent += " ";
+        }
+
+        chat.textContent += text;
+    };
+
+    es.onerror = () => {
+        es.close();
+        es = null;
+    };
+}
+
+function stop() {
+    if (es) {
+        es.close();
+        es = null;
+    }
+}
+</script>
+
+</body>
+</html>
