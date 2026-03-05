@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Java AI Chat</title>
+</head>
+<body>
+<h2>Java AI Chatbot</h2>
+<input id="msg" placeholder="Ask Java question" />
+<button onclick="send()">Send</button>
+<pre id="chat"></pre>
+
+
+<script>
+const sessionId = "user1";
+function send() {
+const text = document.getElementById('msg').value;
+fetch('/chat/stream?sessionId=user1', {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: text
+})
+.then(response => {
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+
+    function read() {
+        reader.read().then(({ done, value }) => {
+            if (done) return;
+            document.getElementById("chat").textContent += decoder.decode(value);
+            read();
+        });
+    }
+    read();
+});
+}
+</script>
+</body>
+</html>
