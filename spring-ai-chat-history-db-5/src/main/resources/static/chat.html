@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spring AI Chat</title>
+
+    <!-- CSS LINK -->
+    <link rel="stylesheet" href="chat.css">
+</head>
+<body>
+
+<div class="chat-box">
+    <h3>🤖 Spring AI Chat</h3>
+
+    <div class="messages" id="chatArea"></div>
+
+    <div class="controls">
+        <input type="number" id="userId" value="1" placeholder="User ID">
+        <input type="number" id="conversationId" value="1" placeholder="Conversation ID">
+        <input type="text" id="message" placeholder="Type your message..."
+               onkeydown="if(event.key==='Enter') sendMessage()">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+<script>
+function sendMessage() {
+
+    const userId = document.getElementById("userId").value;
+    const conversationId = document.getElementById("conversationId").value;
+    const input = document.getElementById("message");
+    const message = input.value.trim();
+    if (!message) return;
+
+    const chatArea = document.getElementById("chatArea");
+
+    chatArea.innerHTML += `
+      <div class="user"><b>You:</b> ${message}</div>
+    `;
+
+    const aiDiv = document.createElement("div");
+    aiDiv.className = "ai";
+    aiDiv.innerHTML = "<b>AI:</b> ";
+    chatArea.appendChild(aiDiv);
+
+    let buffer = "";
+
+    const es = new EventSource(
+        `/api/chat/stream?userId=${userId}&conversationId=${conversationId}&message=${encodeURIComponent(message)}`
+    );
+
+    es.onmessage = (event) => {
+        let token = event.data;
+        if (!token) return;
+
+        buffer += token;
+
+        // ✅ CLEAN + FORMAT
+        let formatted = buffer
+            .replace(/\n\n+/g, "<br><br>")   // paragraph breaks
+            .replace(/\n/g, "<br>")          // line breaks
+            .replace(/\s+/g, " ")             // extra spaces
+            .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>"); // markdown bold
+
+        aiDiv.innerHTML = "<b>AI:</b> " + formatted;
+        chatArea.scrollTop = chatArea.scrollHeight;
+    };
+
+    es.onerror = () => es.close();
+    input.value = "";
+}
+</script>
+
+
+</body>
+</html>
